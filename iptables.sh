@@ -16,7 +16,7 @@ iptables -X
 iptables -t nat -X
 iptables -t mangle -X
 
-#разрешаем локальный трафик
+#разрешаем локальный трафик в рамках сервера
 iptables -A INPUT -i lo -j ACCEPT
 iptables -A OUTPUT -o lo -j ACCEPT
 
@@ -64,6 +64,11 @@ iptables -A INPUT -p icmp --icmp-type echo-request -j ACCEPT
 #iptables -A INPUT -i $WAN -p icmp -m icmp --icmp-type 3 -j ACCEPT
 #iptables -A INPUT -i $WAN -p icmp -m icmp --icmp-type 11 -j ACCEPT
 #iptables -A INPUT -i $WAN -p icmp -m icmp --icmp-type 12 -j ACCEPT
+
+#открываем NAT
+iptables -A FORWARD -i $LAN -o $WAN -s 192.168.0.0/24 -j ACCEPT
+iptables -A FORWARD -i $WAN -o $LAN -d 192.168.0.0/24 -j ACCEPT 
+iptables -A POSTROUTING -t nat -s 192.168.0.0/24 -o $WAN -j SNAT --to-source $WAN_ADDR
 
 #создаем правила по умолчанию
 iptables -P INPUT DROP
