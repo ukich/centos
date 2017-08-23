@@ -66,10 +66,12 @@ iptables -A INPUT -p icmp --icmp-type echo-request -j ACCEPT
 #iptables -A INPUT -i $WAN -p icmp -m icmp --icmp-type 12 -j ACCEPT
 
 #Закрываем порты в NAT'e
-iptables -A FORWARD -p tcp --dport 25 -s 192.168.0.6 -o $WAN -j DROP
+#iptables -A FORWARD -p tcp --dport 25 -s 192.168.0.6 -o $WAN -j DROP
 
-#открываем NAT
-iptables -A FORWARD -i $LAN -o $WAN -s 192.168.0.0/24 -j ACCEPT
+#NAT
+#Открываем только порты 22,53,80,110,443,
+iptables -A FORWARD -i $LAN -o $WAN -p tcp -m multiport --dport 22,80,53,110,443 -s 192.168.0.0/24 -j ACCEPT
+iptables -A FORWARD -i $LAN -o $WAN -p udp --dport 53 -s 192.168.0.0/24 -j ACCEPT
 iptables -A FORWARD -i $WAN -o $LAN -d 192.168.0.0/24 -j ACCEPT 
 iptables -A POSTROUTING -t nat -s 192.168.0.0/24 -o $WAN -j SNAT --to-source $WAN_ADDR
 
